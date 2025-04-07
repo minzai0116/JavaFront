@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../styles/LoginPage.module.css";
+import { signIn } from "next-auth/react";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -62,11 +63,12 @@ const LoginPage = () => {
 
             <div className={styles.divider}>Or log in with…</div>
 
-            <button className={`${styles.socialBtn} ${styles.google}`}>
+            <button onClick={() => signIn("google", { callbackUrl: "/chat" })}>
               Continue with Google
             </button>
-            <button className={styles.socialBtn}>
-              Continue with Apple
+
+            <button onClick={() => signIn("github", { callbackUrl: "/chat" })}>
+              Continue with GitHub
             </button>
           </div>
         </div>

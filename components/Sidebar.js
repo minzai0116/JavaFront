@@ -1,8 +1,17 @@
 import { useRouter } from "next/router";
+import { useState } from "react";
 import styles from "../styles/Sidebar.module.css";
 
 export default function Sidebar() {
     const router = useRouter();
+
+    const [showMenu, setShowMenu] = useState(false);
+
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("chatSessions");
+        router.push("/login");
+    };
 
     const handleNewChat = () => {
         console.log("New chat created");
@@ -54,10 +63,21 @@ export default function Sidebar() {
                     <img src="/setting.svg" alt="Settings" style={{ width: "20px", height: "20px" }} />
                     Settings
                 </button>
-                <button className={styles.footerButton}>
-                    <img src="/file.svg" alt="avatar" style={{ width: "24px", height: "24px", borderRadius: "50%" }} />
-                    Andrew Neilson
-                </button>
+
+                {/* 유저 메뉴 드롭다운 */}
+                <div className={styles.userMenu}>
+                    <button onClick={() => setShowMenu(!showMenu)} className={styles.userButton}>
+                        <img src="/file.svg" alt="avatar" className={styles.avatar} />
+                        <span>Andrew Neilson</span>
+                    </button>
+
+                    {showMenu && (
+                        <div className={styles.dropdown}>
+                            <button onClick={() => router.push("/profile")}>👤 My Profile</button>
+                            <button onClick={handleLogout}>🚪 Log Out</button>
+                        </div>
+                    )}
+                </div>
             </div>
         </aside>
     );
