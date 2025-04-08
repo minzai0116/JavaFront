@@ -43,3 +43,9 @@ export default function ChatPage() {
         </div>
     );
 }
+
+export async function getServerSideProps() {
+    return {
+        props: {},
+    };
+}
