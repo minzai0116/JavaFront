@@ -7,7 +7,10 @@ import styles from "../styles/ChatPage.module.css";
 
 export default function ChatPage() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const sessionData = useSession();
+    const session = sessionData?.data;
+    const status = sessionData?.status;
+
     const [isLoading, setIsLoading] = useState(true);
     const [isGuest, setIsGuest] = useState(false);
     const [theme, setTheme] = useState("blue");
