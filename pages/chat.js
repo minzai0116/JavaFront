@@ -7,9 +7,7 @@ import styles from "../styles/ChatPage.module.css";
 
 export default function ChatPage() {
     const router = useRouter();
-    const sessionData = typeof window !== "undefined" ? useSession() : null;
-    const session = sessionData?.data;
-    const status = sessionData?.status;
+    const { data: session, status } = useSession();
 
     const [isLoading, setIsLoading] = useState(true);
     const [isGuest, setIsGuest] = useState(false);
@@ -19,9 +17,6 @@ export default function ChatPage() {
         if (typeof window === "undefined") return;
 
         const savedTheme = localStorage.getItem("theme") || "blue";
-
-        if (status === "loading") return;
-
         const storedUser = JSON.parse(localStorage.getItem("user"));
 
         if (storedUser) {
@@ -37,12 +32,14 @@ export default function ChatPage() {
             setIsGuest(false);
             setTheme(savedTheme);
             setIsLoading(false);
-        } else if (status === "unauthenticated") {
+        }
+
+        if (status === "unauthenticated") {
             router.push("/login");
         }
     }, [status, session, router]);
 
-    if (isLoading) return <div>Loading...</div>;
+    if (isLoading || status === "loading") return <div>Loading...</div>;
 
     return (
         <div className={`${styles.chatPage} ${styles[theme]}`}>
