@@ -6,16 +6,15 @@
   gap: 16px;
 }
 
-.chatPage.blue {
+.blueTheme {
   background: linear-gradient(to right, #a1c4fd, #c2e9fb);
 }
 
-.chatPage.purple {
+.purpleTheme {
   background: linear-gradient(to right, #d4aaff, #c2c2ff);
 }
 
-.chatPage.pink {
+.pinkTheme {
   background: linear-gradient(to right, #fbc2eb, #a6c1ee);
 }
-
 

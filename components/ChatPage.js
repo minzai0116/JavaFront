@@ -42,7 +42,7 @@ export default function ChatPage() {
     if (isLoading || status === "loading") return <div>Loading...</div>;
 
     return (
-        <div className={`${styles.chatPage} ${styles[theme]}`}>
+        <div className={`${styles.chatPage} ${styles[theme + "Theme"]}`}>
             <Sidebar isGuest={isGuest} />
             <ChatWindow isGuest={isGuest} />
         </div>
