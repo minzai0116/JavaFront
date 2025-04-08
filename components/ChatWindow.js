@@ -31,14 +31,14 @@ export default function ChatWindow({ isGuest = false }) {
   return (
     <div className={styles.chatContainer}>
       {messages.length === 0 && (
-        <div className={styles.emptyState}>
+        <div className={styles.emptyMessageBox}>
           <h2>Let me hear your heart 💜</h2>
           <p>오늘 당신의 감정을 골라주세요</p>
-          <div className={styles.emotionGrid}>
+          <div className={styles.emotionPicker}>
             {emotions.map((emo, i) => (
               <button
                 key={i}
-                className={styles.emotionBtn}
+                className={styles.emotionButton}
                 onClick={() => handleEmotionClick(i)}
               >
                 <span>{emo}</span>
