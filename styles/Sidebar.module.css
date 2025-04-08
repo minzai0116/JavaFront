@@ -182,3 +182,9 @@
 .dropdown button:hover {
   background-color: #f0f0f0;
 }
+
+.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
