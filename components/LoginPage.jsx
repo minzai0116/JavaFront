@@ -26,7 +26,6 @@ const LoginPage = () => {
 
   return (
       <div className={styles.container}>
-        {/* 왼쪽 소개 영역 */}
         <div className={styles.left}>
           <img src="/logo.png" alt="로고" className={styles.logo} />
           <h1>Learn, Discover & Automate in One Place.</h1>
@@ -34,7 +33,6 @@ const LoginPage = () => {
           <div className={styles.chatExample}>💬 Chat interface example here</div>
         </div>
 
-        {/* 오른쪽 로그인 박스 */}
         <div className={styles.right}>
           <div className={styles.loginBox}>
             <h2 className={styles.title}>Login</h2>
@@ -65,8 +63,16 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className={styles.forgotWrapper}>
+            <div className={styles.forgotWrapper} style={{ textAlign: "center" }}>
               <a href="#">Forgot password?</a>
+              <span style={{ margin: "0 8px", color: "#aaa" }}>|</span>
+              <button
+                  className={styles.signupLink}
+                  onClick={() => router.push("/signup")}
+                  style={{ display: "inline", background: "none", border: "none", padding: 0 }}
+              >
+                Sign up
+              </button>
             </div>
 
             <button className={styles.loginBtn} onClick={handleLogin}>
@@ -92,10 +98,9 @@ const LoginPage = () => {
             </div>
 
             <p className={styles.orText}>Or continue as guest</p>
-            <button className={styles.guestBtn} onClick={handleGuestLogin}>Continue as Guest</button>
-
-            <p className={styles.orText}>Or Sign Up Using</p>
-            <button className={styles.signupLink} onClick={() => router.push("/signup")}>SIGN UP</button>
+            <button className={styles.guestBtn} onClick={handleGuestLogin}>
+              Continue as Guest
+            </button>
           </div>
         </div>
       </div>
