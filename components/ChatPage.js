@@ -6,30 +6,42 @@ import ChatWindow from "@/components/ChatWindow";
 import styles from "@/styles/ChatPage.module.css";
 
 export default function ChatPage() {
-    const [isClient, setIsClient] = useState(false);
-    const sessionData = typeof window !== "undefined" ? useSession() : null;
-    const session = sessionData?.data;
-    const status = sessionData?.status;
+    const { data: session, status } = useSession();
     const router = useRouter();
+    const [isClient, setIsClient] = useState(false);
+    const [isGuest, setIsGuest] = useState(false);
+    const [theme, setTheme] = useState("blue");
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
     useEffect(() => {
-        if (isClient && status === "unauthenticated") {
+        if (!isClient || status === "loading") return;
+
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const savedTheme = localStorage.getItem("theme") || "blue";
+
+        if (storedUser) {
+            setIsGuest(!!storedUser.guest);
+            setTheme(savedTheme);
+        } else if (status === "authenticated" && session?.user?.email) {
+            localStorage.setItem("user", JSON.stringify({ email: session.user.email }));
+            setIsGuest(false);
+            setTheme(savedTheme);
+        } else {
             router.replace("/login");
         }
-    }, [isClient, status, router]);
+    }, [isClient, session, status, router]);
 
     if (!isClient || status === "loading") {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className={styles.chatPage}>
-            <Sidebar />
-            <ChatWindow />
+        <div className={`${styles.chatPage} ${styles[theme + "Theme"]}`}>
+            <Sidebar isGuest={isGuest} />
+            <ChatWindow isGuest={isGuest} />
         </div>
     );
 }
