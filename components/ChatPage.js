@@ -6,23 +6,28 @@ import ChatWindow from "@/components/ChatWindow";
 import styles from "@/styles/ChatPage.module.css";
 
 export default function ChatPage() {
-    const router = useRouter();
-    const { data: session, status } = useSession();
-    const [isClient, setIsClient] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-    useEffect(() => {
-        setIsClient(true);
-        if (status === "unauthenticated") {
-            router.push("/login");
-        }
-    }, [status]);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-    if (!isClient || status === "loading") return <div>Loading...</div>;
+  useEffect(() => {
+    if (isClient && status === "unauthenticated") {
+      router.replace("/login");
+    }
+  }, [isClient, status, router]);
 
-    return (
-        <div className={styles.chatPage}>
-            <Sidebar />
-            <ChatWindow />
-        </div>
-    );
+  if (!isClient || status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className={styles.chatPage}>
+      <Sidebar />
+      <ChatWindow />
+    </div>
+  );
 }
