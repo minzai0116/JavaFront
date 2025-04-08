@@ -7,13 +7,17 @@ import styles from "../styles/ChatPage.module.css";
 
 export default function ChatPage() {
     const router = useRouter();
-    const { data: session, status } = useSession();
+    const sessionData = typeof window !== "undefined" ? useSession() : null;
+    const session = sessionData?.data;
+    const status = sessionData?.status;
 
     const [isLoading, setIsLoading] = useState(true);
     const [isGuest, setIsGuest] = useState(false);
     const [theme, setTheme] = useState("blue");
 
     useEffect(() => {
+        if (typeof window === "undefined") return;
+
         const savedTheme = localStorage.getItem("theme") || "blue";
 
         if (status === "loading") return;
