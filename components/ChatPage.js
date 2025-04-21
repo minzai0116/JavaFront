@@ -20,15 +20,16 @@ export default function ChatPage() {
         if (!isClient || status === "loading") return;
 
         const storedUser = JSON.parse(localStorage.getItem("user"));
-        const savedTheme = localStorage.getItem("theme") || "blue";
 
         if (storedUser) {
+            const userTheme = storedUser.guest ? "blue" : storedUser.theme || "blue";
             setIsGuest(!!storedUser.guest);
-            setTheme(savedTheme);
+            setTheme(userTheme);
         } else if (status === "authenticated" && session?.user?.email) {
-            localStorage.setItem("user", JSON.stringify({ email: session.user.email }));
+            const newUser = { email: session.user.email };
+            localStorage.setItem("user", JSON.stringify(newUser));
             setIsGuest(false);
-            setTheme(savedTheme);
+            setTheme("blue");
         } else {
             router.replace("/login");
         }

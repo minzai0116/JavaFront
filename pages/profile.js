@@ -10,21 +10,19 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("user"));
-        const storedTheme = localStorage.getItem("theme") || "blue";
 
         if (!storedUser) {
             router.push("/login");
         } else {
             setUser(storedUser);
             setNickname(storedUser.nickname || "Andrew Neilson");
-            setTheme(storedTheme);
+            setTheme(storedUser.theme || "blue");
         }
     }, []);
 
     const handleSave = () => {
-        const updatedUser = { ...user, nickname };
+        const updatedUser = { ...user, nickname, theme };
         localStorage.setItem("user", JSON.stringify(updatedUser));
-        localStorage.setItem("theme", theme);
         alert("Profile updated!");
     };
 

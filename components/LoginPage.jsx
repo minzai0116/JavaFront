@@ -64,7 +64,7 @@ const LoginPage = () => {
             </div>
 
             <div className={styles.forgotWrapper} style={{ textAlign: "center" }}>
-              <a href="#">Forgot password?</a>
+              <a href="/forgot-password">Forgot password?</a>
               <span style={{ margin: "0 8px", color: "#aaa" }}>|</span>
               <button
                   className={styles.signupLink}
