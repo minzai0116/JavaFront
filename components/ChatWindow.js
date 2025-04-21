@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ChatWindow.module.css";
 import { v4 as uuidv4 } from "uuid";
 
-export default function ChatWindow() {
+export default function ChatWindow({ newChatTrigger, selectedSessionId }) {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [selectedStyle, setSelectedStyle] = useState("상담스타일을 선택해주세요");
@@ -13,6 +13,7 @@ export default function ChatWindow() {
     const counselingStyles = ["다정한", "공감과 위로", "현실적인 조언"];
     const emotionButtons = ["슬퍼요 😢", "불안해요 😨", "조언이 필요해요 💡"];
 
+    // 🔸 [로컬] 처음 렌더링 시 마지막 세션 불러오기
     useEffect(() => {
         const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
         if (storedSessions.length > 0) {
@@ -21,6 +22,37 @@ export default function ChatWindow() {
             setMessages(lastSession.messages || []);
         }
     }, []);
+
+    // 🔸 [로컬] 새로운 채팅 시작 시 세션 초기화
+    useEffect(() => {
+        const newId = uuidv4();
+        setSessionId(newId);
+        setMessages([]);
+        setShowIntro(true);
+
+        const newSession = {
+            id: newId,
+            title: "New Chat",
+            createdAt: new Date(),
+            messages: [],
+        };
+
+        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+        localStorage.setItem("chatSessions", JSON.stringify([...storedSessions, newSession]));
+    }, [newChatTrigger]);
+
+    // 🔸 [로컬] 선택된 세션을 불러오기
+    useEffect(() => {
+        if (!selectedSessionId) return;
+
+        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+        const targetSession = storedSessions.find((s) => s.id === selectedSessionId);
+        if (targetSession) {
+            setSessionId(targetSession.id);
+            setMessages(targetSession.messages || []);
+            setShowIntro((targetSession.messages || []).length === 0);
+        }
+    }, [selectedSessionId]);
 
     const handleSend = () => {
         if (!input.trim()) return;
@@ -42,6 +74,7 @@ export default function ChatWindow() {
         setInput("");
         setShowIntro(false);
 
+        // 🔸 [로컬] 메시지 업데이트
         const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
         const sessionIndex = storedSessions.findIndex((s) => s.id === currentSessionId);
 
