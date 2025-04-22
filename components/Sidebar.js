@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import styles from "../styles/Sidebar.module.css";
 
-export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newChatTrigger }) {
+export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newChatTrigger, refreshSessionList }) {
     const router = useRouter();
     const [chatSessions, setChatSessions] = useState([]);
     const [showSearch, setShowSearch] = useState(false);
@@ -22,7 +22,7 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
 
     useEffect(() => {
         loadSessions();
-    }, [newChatTrigger]);
+    }, [newChatTrigger, refreshSessionList]);
 
     const handleLogout = () => {
         localStorage.removeItem("user");
@@ -68,7 +68,6 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
 
     return (
         <aside className={styles.sidebar}>
-            {/* 상단 영역 */}
             <div>
                 <div onClick={() => window.location.reload()} className={styles.logo}>
                     <img src="/logo.png" alt="Sound of Mind Logo" className={styles.logoImage} />
@@ -86,8 +85,8 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
                     <button className={styles.iconBtn} onClick={() => setShowSearch(!showSearch)} title="Search">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="11" cy="11" r="8"/>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
                         </svg>
                     </button>
                 </div>
@@ -113,7 +112,6 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
                 </div>
             </div>
 
-            {/* 중간 스크롤 영역 */}
             <ul className={styles.chatItemList}>
                 {filteredSessions.length === 0 ? (
                     <div style={{ textAlign: "center", color: "#888", padding: "1rem 0" }}>No results</div>
@@ -181,18 +179,40 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
                 )}
             </ul>
 
-            {/* 하단 고정 버튼 */}
             <div className={styles.footerButtons}>
+                {router.pathname === "/community" ? (
+                    <button className={styles.footerButton} onClick={() => router.push("/chat")}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        채팅으로 돌아가기
+                    </button>
+                ) : (
+                    <button className={styles.footerButton} onClick={() => router.push("/community")}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        커뮤니티
+                    </button>
+                )}
+
                 {!isGuest && (
                     <button className={styles.footerButton} onClick={() => router.push("/profile")}>
-                        <img src="/file.svg" alt="profile icon" className={styles.avatar} />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                            <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M4 21v-2a4 4 0 0 1 3-3.87" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
                         My Profile
                     </button>
                 )}
+
                 <button className={styles.footerButton} onClick={handleLogout}>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
@@ -200,6 +220,7 @@ export default function Sidebar({ isGuest = false, onNewChat, onSelectChat, newC
                     Log Out
                 </button>
             </div>
+
         </aside>
     );
 }
