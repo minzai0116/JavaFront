@@ -51,6 +51,7 @@ export default function ChatPage() {
                 isGuest={isGuest}
                 newChatTrigger={newChatTrigger}
                 selectedSessionId={selectedSessionId}
+                theme={theme}
             />
         </div>
     );

@@ -15,24 +15,24 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
     const emotionButtons = ["슬퍼요 😢", "불안해요 😨", "조언이 필요해요 💡"];
 
     useEffect(() => {
+        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+        const hasActiveSession = selectedSessionId || storedSessions.length > 0;
+        if (hasActiveSession) return; // ✅ 기존 세션이 있으면 새로 만들지 않음
+
         const newId = uuidv4();
         setSessionId(newId);
         setMessages([]);
         setShowIntro(true);
 
-        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
-        const alreadyExists = storedSessions.some((s) => s.id === newId);
-        if (!alreadyExists) {
-            const newSession = {
-                id: newId,
-                title: "New Chat",
-                createdAt: new Date(),
-                messages: [],
-            };
-            localStorage.setItem("chatSessions", JSON.stringify([...storedSessions, newSession]));
+        const newSession = {
+            id: newId,
+            title: "New Chat",
+            createdAt: new Date(),
+            messages: [],
+        };
+        localStorage.setItem("chatSessions", JSON.stringify([...storedSessions, newSession]));
 
-            if (onSessionCreated) onSessionCreated();
-        }
+        if (onSessionCreated) onSessionCreated();
     }, [newChatTrigger]);
 
     useEffect(() => {
@@ -84,8 +84,7 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
     };
 
     return (
-        <div className={`${styles.chatContainer} ${styles[theme]}`}>
-            {/* 상담 스타일 선택 */}
+        <div className={`${styles.chatContainer} ${theme}`}>
             <div className={styles.dropdownWrapper}>
                 <button className={styles.dropdownToggle} onClick={() => setDropdownOpen((prev) => !prev)}>
                     <span>{selectedStyle}</span>
@@ -108,7 +107,6 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
                 )}
             </div>
 
-            {/* 소개 메시지 */}
             {messages.length === 0 && showIntro && (
                 <div className={styles.emptyMessageBox}>
                     <div className={styles.heartEmoji}>💖</div>
@@ -130,7 +128,6 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
                 </div>
             )}
 
-            {/* 메시지 출력 영역 */}
             <div className={styles.messageList}>
                 {messages.map((msg) => (
                     <div
@@ -142,7 +139,6 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
                 ))}
             </div>
 
-            {/* 입력창 */}
             <div className={styles.inputWrapper}>
                 <div className={styles.inputBox}>
                     <img
