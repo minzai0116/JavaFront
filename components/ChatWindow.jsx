@@ -15,9 +15,11 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
     const emotionButtons = ["슬퍼요 😢", "불안해요 😨", "조언이 필요해요 💡"];
 
     useEffect(() => {
+        if (typeof window === "undefined") return; // ✅ SSR 방지
+
         const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
         const hasActiveSession = selectedSessionId || storedSessions.length > 0;
-        if (hasActiveSession) return; // ✅ 기존 세션이 있으면 새로 만들지 않음
+        if (hasActiveSession) return;
 
         const newId = uuidv4();
         setSessionId(newId);
@@ -171,4 +173,5 @@ export default function ChatWindow({ isGuest, newChatTrigger, selectedSessionId,
         </div>
     );
 }
+
 
