@@ -2,158 +2,108 @@ import { useState, useEffect } from "react";
 import styles from "../styles/ChatWindow.module.css";
 import { v4 as uuidv4 } from "uuid";
 
-export default function ChatWindow({ newChatTrigger, selectedSessionId }) {
+export default function ChatWindow({ selectedSessionId, newChatTrigger }) {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
-    const [selectedStyle, setSelectedStyle] = useState("상담스타일을 선택해주세요");
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [showIntro, setShowIntro] = useState(true);
+    const [isSending, setIsSending] = useState(false);
     const [sessionId, setSessionId] = useState(null);
+    const [showIntro, setShowIntro] = useState(true);
 
-    const counselingStyles = ["다정한", "공감과 위로", "현실적인 조언"];
-    const emotionButtons = ["슬퍼요 😢", "불안해요 😨", "조언이 필요해요 💡"];
-
-    // 🔸 [로컬] 처음 렌더링 시 마지막 세션 불러오기
     useEffect(() => {
-        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
-        if (storedSessions.length > 0) {
-            const lastSession = storedSessions[storedSessions.length - 1];
-            setSessionId(lastSession.id);
-            setMessages(lastSession.messages || []);
-        }
-    }, []);
-
-    // 🔸 [로컬] 새로운 채팅 시작 시 세션 초기화
-    useEffect(() => {
-        const newId = uuidv4();
-        setSessionId(newId);
-        setMessages([]);
-        setShowIntro(true);
-
-        const newSession = {
-            id: newId,
-            title: "New Chat",
-            createdAt: new Date(),
-            messages: [],
-        };
-
-        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
-        localStorage.setItem("chatSessions", JSON.stringify([...storedSessions, newSession]));
-    }, [newChatTrigger]);
-
-    // 🔸 [로컬] 선택된 세션을 불러오기
-    useEffect(() => {
-        if (!selectedSessionId) return;
-
-        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
-        const targetSession = storedSessions.find((s) => s.id === selectedSessionId);
-        if (targetSession) {
-            setSessionId(targetSession.id);
-            setMessages(targetSession.messages || []);
-            setShowIntro((targetSession.messages || []).length === 0);
+        if (selectedSessionId && typeof window !== "undefined") {
+            const stored = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+            const found = stored.find((s) => s.id === selectedSessionId);
+            if (found) {
+                setMessages(found.messages || []);
+                setSessionId(found.id);
+            } else {
+                setMessages([]);
+                setSessionId(selectedSessionId);
+            }
+            setShowIntro(true);
         }
     }, [selectedSessionId]);
 
-    const handleSend = () => {
+    useEffect(() => {
+        if (!selectedSessionId && newChatTrigger > 0) {
+            const newId = uuidv4();
+            setSessionId(newId);
+            setMessages([]);
+            setShowIntro(true);
+        }
+    }, [newChatTrigger]);
+
+    const handleSend = async () => {
         if (!input.trim()) return;
 
-        let currentSessionId = sessionId;
-        if (!currentSessionId) {
-            currentSessionId = uuidv4();
-            setSessionId(currentSessionId);
-        }
-
-        const newMessage = {
-            id: Date.now(),
-            sender: "user",
-            text: input,
-        };
-
-        const updatedMessages = [...messages, newMessage];
-        setMessages(updatedMessages);
+        const newMessages = [...messages, { id: Date.now(), sender: "user", text: input }];
+        setMessages(newMessages);
         setInput("");
         setShowIntro(false);
+        setIsSending(true);
 
-        // 🔸 [로컬] 메시지 업데이트
-        const storedSessions = JSON.parse(localStorage.getItem("chatSessions") || "[]");
-        const sessionIndex = storedSessions.findIndex((s) => s.id === currentSessionId);
-
-        if (sessionIndex !== -1) {
-            storedSessions[sessionIndex].messages = updatedMessages;
-        } else {
-            storedSessions.push({
-                id: currentSessionId,
-                title: input.slice(0, 30),
-                createdAt: new Date(),
-                messages: updatedMessages,
+        try {
+            const res = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: input })
             });
-        }
+            const data = await res.json();
+            const reply = {
+                id: Date.now() + 1,
+                sender: "bot",
+                text: data.message || "답변을 불러오지 못했어요."
+            };
+            const updated = [...newMessages, reply];
+            setMessages(updated);
 
-        localStorage.setItem("chatSessions", JSON.stringify(storedSessions));
+            if (typeof window !== "undefined") {
+                const stored = JSON.parse(localStorage.getItem("chatSessions") || "[]");
+                const sessionIndex = stored.findIndex((s) => s.id === sessionId);
+
+                if (sessionIndex !== -1) {
+                    stored[sessionIndex].messages = updated;
+                } else {
+                    stored.push({
+                        id: sessionId,
+                        title: newMessages[0]?.text.slice(0, 30) || "New Chat",
+                        createdAt: new Date(),
+                        messages: updated
+                    });
+                }
+
+                localStorage.setItem("chatSessions", JSON.stringify(stored));
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsSending(false);
+        }
     };
 
     return (
         <div className={styles.chatContainer}>
-            {/* 상담 스타일 선택 */}
-            <div className={styles.dropdownWrapper}>
-                <button
-                    className={styles.dropdownToggle}
-                    onClick={() => setDropdownOpen((prev) => !prev)}
-                >
-                    <span>{selectedStyle}</span>
-                </button>
-
-                {dropdownOpen && (
-                    <ul className={styles.dropdownList}>
-                        {counselingStyles.map((style) => (
-                            <li
-                                key={style}
-                                className={styles.dropdownItem}
-                                onClick={() => {
-                                    setSelectedStyle(style);
-                                    setDropdownOpen(false);
-                                }}
-                            >
-                                {style}
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
-
-            {/* 소개 메시지 */}
             {messages.length === 0 && showIntro && (
                 <div className={styles.emptyMessageBox}>
                     <div className={styles.heartEmoji}>💖</div>
                     <h2 className={styles.emptyTitle}>Let me hear your heart</h2>
                     <p className={styles.emptyDescription}>
-                        Start by sharing anything on your mind.<br />I'm here to listen and support you.
+                        마음속 이야기를 나눠보세요.<br />제가 경청하고 위로해드릴게요.
                     </p>
-                    <div className={styles.emotionButtons}>
-                        {emotionButtons.map((emotion, idx) => (
-                            <button key={idx} className={styles.emotionBtn} onClick={() => setShowIntro(false)}>
-                                {emotion}
-                            </button>
-                        ))}
-                    </div>
                 </div>
             )}
 
-            {/* 메시지 출력 영역 */}
             <div className={styles.messageList}>
                 {messages.map((msg) => (
                     <div
                         key={msg.id}
-                        className={`${styles.messageBubble} ${
-                            msg.sender === "user" ? styles.userMessage : styles.botMessage
-                        }`}
+                        className={`${styles.messageBubble} ${msg.sender === "user" ? styles.userMessage : styles.botMessage}`}
                     >
                         {msg.text}
                     </div>
                 ))}
             </div>
 
-            {/* 입력창 */}
             <div className={styles.inputWrapper}>
                 <div className={styles.inputBox}>
                     <img
@@ -162,18 +112,19 @@ export default function ChatWindow({ newChatTrigger, selectedSessionId }) {
                         className={styles.inputIcon}
                     />
                     <input
+                        type="text"
+                        placeholder="마음의 소리를 들려주세요"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+                            if (e.key === "Enter" && !e.nativeEvent.isComposing && !isSending) {
                                 handleSend();
                             }
                         }}
-                        type="text"
-                        placeholder="Let me hear your heart"
+                        disabled={isSending}
                         className={styles.inputField}
                     />
-                    <button onClick={handleSend} className={styles.sendButton}>
+                    <button onClick={handleSend} disabled={isSending} className={styles.sendButton}>
                         <img src="/send.svg" alt="Send" className={styles.sendIcon} />
                     </button>
                 </div>
