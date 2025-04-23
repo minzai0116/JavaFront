@@ -1,9 +1,11 @@
 .communityPage {
     display: flex;
+    flex-direction: row;
     height: 100vh;
     padding: 16px;
     gap: 16px;
-    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .blueTheme {
@@ -29,15 +31,17 @@
     overflow: hidden;
     margin-bottom: 20px;
     height: calc(100vh - 32px);
+    flex-shrink: 0;
 }
 
 .mainContent {
-    overflow-y: auto;
-    height: 100%;
+    flex: 1;
+    min-width: 0;
     padding: 2rem;
+    height: 100%;
+    overflow-y: auto;
 }
 
-/* 예쁜 스크롤바 스타일 - mainContent 전용 */
 .mainContent::-webkit-scrollbar {
     width: 8px;
 }
@@ -57,6 +61,7 @@
     padding: 2rem 1rem;
     background: transparent;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .sectionBox {
@@ -112,7 +117,6 @@
     padding: 1rem;
     border-radius: 12px;
 }
-
 
 .inputSearchBox {
     display: flex;
